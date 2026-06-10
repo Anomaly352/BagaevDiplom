@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>О нас - SAKURA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="about">
+    <header class="site-header">
+        <div class="container header-inner">
+            <a class="logo" href="index.html"><span>S</span>AKURA</a>
+            <button class="nav-toggle" type="button" aria-label="Открыть меню">☰</button>
+            <nav class="site-nav">
+                <a href="index.html" data-nav="home">Главная</a>
+                <a href="menu.html" data-nav="menu">Меню</a>
+                <a href="about.html" data-nav="about">О нас</a>
+                <a href="cart.html" data-nav="cart">Корзина <span class="cart-pill js-cart-count">0</span></a>
+                <a href="auth.html" data-nav="auth">Войти</a>
+                <a href="account.html" data-nav="account">Кабинет</a>
+            </nav>
+            <button class="theme-toggle js-theme-toggle" type="button" aria-label="Сменить тему">Светлая</button>
+        </div>
+    </header>
+
+    <main class="page-main">
+        <section class="page-hero about-hero">
+            <div class="container">
+                <p class="eyebrow">О ресторане</p>
+                <h1>Мы соединяем японскую аккуратность и курортную легкость</h1>
+                <p>SAKURA - сервис доставки японской кухни с продуманным меню, быстрым оформлением заказа и внимательным отношением к каждому клиенту.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container about-layout">
+                <div class="about-photo">
+                    <img src="https://images.unsplash.com/photo-1611143669185-af224c5e3252?auto=format&fit=crop&w=1100&q=80" alt="Повар готовит роллы">
+                </div>
+                <div class="about-copy">
+                    <p class="eyebrow">Философия</p>
+                    <h2>Свежие продукты, понятная подача, быстрый сервис</h2>
+                    <p>Мы делаем меню разнообразным и сбалансированным: классические роллы, запеченные позиции, сеты для компании, супы, лапша и напитки. Каждое блюдо готовится из свежих продуктов и подается так, чтобы вкус оставался ярким даже после доставки.</p>
+                    <div class="stats-grid">
+                        <div><strong class="js-products-count">12</strong><span>позиций в меню</span></div>
+                        <div><strong>45</strong><span>минут доставка</span></div>
+                        <div><strong>4.8</strong><span>оценка клиентов</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section muted-section">
+            <div class="container section-head">
+                <p class="eyebrow">Преимущества</p>
+                <h2>Почему клиент выбирает SAKURA</h2>
+            </div>
+            <div class="container service-grid">
+                <article><h3>Контроль качества</h3><p>Каждый заказ проверяется перед передачей курьеру: состав, количество приборов, соусы и упаковка.</p></article>
+                <article><h3>Замечательный вкус</h3><p>Мы подбираем сочетания рыбы, риса, соусов и овощей так, чтобы каждое блюдо было насыщенным, свежим и запоминающимся.</p></article>
+                <article><h3>Адаптивность</h3><p>Сайт рассчитан на просмотр с телефона, планшета и ноутбука.</p></article>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div><a class="logo" href="index.html"><span>S</span>AKURA</a><p>Доставка японской кухни в современном формате.</p></div>
+            <div><h3>Страницы</h3><a href="menu.html">Меню</a><a href="cart.html">Корзина</a><a href="auth.html">Войти</a></div>
+            <div><h3>Контакты</h3><p>г. Геленджик, ул. Мира, 23</p><p>info@sakura-gel.ru</p></div>
+            <div><h3>Время работы</h3><p>Ежедневно с 10:00 до 23:00</p></div>
+        </div>
+    </footer>
+
+    <div class="toast js-toast" role="status" aria-live="polite"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="JAva/supabase-config.js"></script>
+    <script src="JAva/app.js"></script>
+</body>
+</html>

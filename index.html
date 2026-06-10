@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAKURA - доставка японской кухни</title>
+    <meta name="description" content="SAKURA - современная доставка роллов, суши, сетов и горячих блюд в Геленджике.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="home">
+    <header class="site-header">
+        <div class="container header-inner">
+            <a class="logo" href="index.html" aria-label="SAKURA главная"><span>S</span>AKURA</a>
+            <button class="nav-toggle" type="button" aria-label="Открыть меню">☰</button>
+            <nav class="site-nav">
+                <a href="index.html" data-nav="home">Главная</a>
+                <a href="menu.html" data-nav="menu">Меню</a>
+                <a href="about.html" data-nav="about">О нас</a>
+                <a href="cart.html" data-nav="cart">Корзина <span class="cart-pill js-cart-count">0</span></a>
+                <a href="auth.html" data-nav="auth">Войти</a>
+                <a href="account.html" data-nav="account">Кабинет</a>
+            </nav>
+            <button class="theme-toggle js-theme-toggle" type="button" aria-label="Сменить тему">Светлая</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero home-hero">
+            <div class="hero-media" aria-hidden="true"></div>
+            <div class="container hero-content">
+                <p class="eyebrow">Премиальная доставка в Геленджике</p>
+                <h1>SAKURA</h1>
+                <p class="hero-lead">Авторские роллы, свежие суши и горячие блюда японской кухни с бережной доставкой за 45 минут.</p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="menu.html">Открыть меню</a>
+                    <a class="btn btn-soft" href="about.html">Узнать о ресторане</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section intro-band">
+            <div class="container split">
+                <div>
+                    <p class="eyebrow">Как работает сервис</p>
+                    <h2>Ресторанный вкус дома, без лишнего ожидания</h2>
+                </div>
+                <div class="feature-list">
+                    <article>
+                        <span>01</span>
+                        <h3>Готовим после заказа</h3>
+                        <p>Рыба, рис и соусы собираются в блюдо только после подтверждения заказа.</p>
+                    </article>
+                    <article>
+                        <span>02</span>
+                        <h3>Доставляем аккуратно</h3>
+                        <p>Упаковка сохраняет температуру, текстуру и внешний вид блюд.</p>
+                    </article>
+                    <article>
+                        <span>03</span>
+                        <h3>Помним любимое</h3>
+                        <p>В личном кабинете можно хранить контактные данные и историю заказов.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container section-head">
+                <p class="eyebrow">Популярное</p>
+                <h2>Хиты меню</h2>
+                <a class="link-arrow" href="menu.html">Все блюда</a>
+            </div>
+            <div class="container product-grid js-featured-products"></div>
+        </section>
+
+        <section class="section delivery-band">
+            <div class="container delivery-grid">
+                <div>
+                    <p class="eyebrow">Доставка и оплата</p>
+                    <h2>Заказ можно оплатить онлайн или курьеру</h2>
+                    <p>Минимальная сумма заказа - 700 ₽. Бесплатная доставка действует от 1500 ₽ по центральным районам города.</p>
+                </div>
+                <div class="delivery-cards">
+                    <div><strong>45 мин</strong><span>среднее время доставки</span></div>
+                    <div><strong>10:00-23:00</strong><span>ежедневный график</span></div>
+                    <div><strong>1500 ₽</strong><span>бесплатная доставка</span></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div>
+                <a class="logo" href="index.html"><span>S</span>AKURA</a>
+                <p>Доставка японской кухни: роллы, суши, сеты, супы и горячие блюда.</p>
+            </div>
+            <div>
+                <h3>Навигация</h3>
+                <a href="menu.html">Меню</a>
+                <a href="about.html">О нас</a>
+                <a href="cart.html">Корзина</a>
+                <a href="auth.html">Вход и регистрация</a>
+            </div>
+            <div>
+                <h3>Контакты</h3>
+                <p>г. Геленджик, ул. Мира, 23</p>
+                <p>+7 (861) 000-00-00</p>
+                <p>info@sakura-gel.ru</p>
+            </div>
+            <div>
+                <h3>Подписка</h3>
+                <form class="subscribe-form js-subscribe-form">
+                    <input type="email" placeholder="Ваш email" required>
+                    <button type="submit">OK</button>
+                </form>
+            </div>
+        </div>
+        <p class="copyright">© 2026 SAKURA. Все права защищены.</p>
+    </footer>
+
+    <div class="toast js-toast" role="status" aria-live="polite"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="JAva/supabase-config.js"></script>
+    <script src="JAva/app.js"></script>
+</body>
+</html>

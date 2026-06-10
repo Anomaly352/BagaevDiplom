@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет - SAKURA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="account">
+    <header class="site-header">
+        <div class="container header-inner">
+            <a class="logo" href="index.html"><span>S</span>AKURA</a>
+            <button class="nav-toggle" type="button" aria-label="Открыть меню">☰</button>
+            <nav class="site-nav">
+                <a href="index.html" data-nav="home">Главная</a>
+                <a href="menu.html" data-nav="menu">Меню</a>
+                <a href="about.html" data-nav="about">О нас</a>
+                <a href="cart.html" data-nav="cart">Корзина <span class="cart-pill js-cart-count">0</span></a>
+                <a href="auth.html" data-nav="auth">Войти</a>
+                <a href="account.html" data-nav="account">Кабинет</a>
+            </nav>
+            <button class="theme-toggle js-theme-toggle" type="button" aria-label="Сменить тему">Светлая</button>
+        </div>
+    </header>
+
+    <main class="page-main">
+        <section class="page-hero compact-hero">
+            <div class="container">
+                <p class="eyebrow">Профиль клиента</p>
+                <h1>Личный кабинет</h1>
+                <p>Профиль, бонусы и история заказов сохраняются в браузере для демонстрации работы интерфейса.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container account-layout">
+                <aside class="profile-card">
+                    <div class="avatar js-avatar">S</div>
+                    <h2 class="js-profile-name">Гость</h2>
+                    <p class="js-profile-email">Войдите или зарегистрируйтесь</p>
+                    <a class="btn btn-primary btn-wide js-auth-link" href="auth.html">Войти</a>
+                    <button class="ghost-button btn-wide js-logout" type="button">Выйти</button>
+                </aside>
+
+                <div class="dashboard">
+                    <div class="dashboard-stats">
+                        <div><span>Бонусы</span><strong class="js-bonus">0</strong></div>
+                        <div><span>Заказов</span><strong class="js-orders-count">0</strong></div>
+                        <div><span>Статус</span><strong class="js-status">Гость</strong></div>
+                    </div>
+
+                    <section class="dashboard-section">
+                        <div class="cart-panel-head">
+                            <h2>Контактные данные</h2>
+                            <button class="ghost-button js-save-profile" type="button">Сохранить</button>
+                        </div>
+                        <form class="profile-form js-profile-form">
+                            <label>Имя<input name="name" type="text" placeholder="Ваше имя"></label>
+                            <label>Телефон<input name="phone" type="tel" placeholder="+7 (___) ___-__-__"></label>
+                            <label>Адрес<input name="address" type="text" placeholder="Адрес доставки"></label>
+                        </form>
+                    </section>
+
+                    <section class="dashboard-section">
+                        <h2>История заказов</h2>
+                        <div class="orders-list js-orders-list"></div>
+                    </section>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="toast js-toast" role="status" aria-live="polite"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="JAva/supabase-config.js"></script>
+    <script src="JAva/app.js"></script>
+</body>
+</html>

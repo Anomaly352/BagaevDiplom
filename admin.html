@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель - SAKURA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="admin">
+    <header class="site-header">
+        <div class="container header-inner">
+            <a class="logo" href="index.html"><span>S</span>AKURA</a>
+            <button class="nav-toggle" type="button" aria-label="Открыть меню">☰</button>
+            <nav class="site-nav">
+                <a href="index.html" data-nav="home">Сайт</a>
+                <a href="menu.html" data-nav="menu">Меню</a>
+                <a href="cart.html" data-nav="cart">Корзина <span class="cart-pill js-cart-count">0</span></a>
+                <a href="account.html" data-nav="account">Кабинет</a>
+            </nav>
+            <button class="theme-toggle js-theme-toggle" type="button" aria-label="Сменить тему">Светлая</button>
+        </div>
+    </header>
+
+    <main class="page-main">
+        <section class="page-hero compact-hero admin-hero">
+            <div class="container">
+                <p class="eyebrow">Служебный раздел</p>
+                <h1>Админ-панель</h1>
+                <p>Рабочее место администратора доставки: контроль заказов, меню, клиентов и основных показателей.</p>
+            </div>
+        </section>
+
+        <section class="section js-admin-login">
+            <div class="container admin-login-layout">
+                <div>
+                    <p class="eyebrow">Как открыть</p>
+                    <p class="admin-note">Для демонстрации используйте логин <strong>admin@sakura.ru</strong> и пароль <strong>admin123</strong>.</p>
+                </div>
+
+                <form class="auth-card auth-form js-admin-login-form">
+                    <label>Email администратора
+                        <input name="email" type="email" value="admin@sakura.ru" required>
+                    </label>
+                    <label>Пароль
+                        <input name="password" type="password" value="admin123" required>
+                    </label>
+                    <button class="btn btn-primary btn-wide" type="submit">Войти в панель</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="section js-admin-panel hidden">
+            <div class="container admin-topbar">
+                <div>
+                    <p class="eyebrow">Обзор</p>
+                    <h2>Панель управления доставкой</h2>
+                </div>
+                <button class="ghost-button js-admin-logout" type="button">Выйти</button>
+            </div>
+
+            <div class="container dashboard-stats admin-stats">
+                <div><span>Выручка</span><strong class="js-admin-revenue">0 ₽</strong></div>
+                <div><span>Заказы</span><strong class="js-admin-orders">0</strong></div>
+                <div><span>Позиции меню</span><strong class="js-admin-products">0</strong></div>
+                <div><span>Клиенты</span><strong class="js-admin-clients">0</strong></div>
+            </div>
+
+            <div class="container admin-grid">
+                <section class="dashboard-section">
+                    <h2>Заказы</h2>
+                    <p class="admin-note">Менеджер видит состав заказа, контакты клиента и меняет статус: новый, готовится, передан курьеру, выполнен или отменен.</p>
+                    <div class="admin-list js-admin-orders-list"></div>
+                </section>
+
+                <section class="dashboard-section">
+                    <div class="cart-panel-head">
+                        <h2>Меню</h2>
+                        <button class="ghost-button js-reset-products" type="button">Сбросить меню</button>
+                    </div>
+                    <p class="admin-note">Администратор может добавлять блюда, менять ассортимент и удалять позиции, которых нет в наличии.</p>
+                    <div class="admin-list js-admin-products-list"></div>
+                </section>
+
+                <section class="dashboard-section admin-form-panel">
+                    <h2>Добавить блюдо</h2>
+                    <form class="profile-form js-product-form">
+                        <label>Название<input name="name" type="text" placeholder="Темпура ролл" required></label>
+                        <label>Категория
+                            <select name="category" required>
+                                <option value="rolls">Роллы</option>
+                                <option value="sushi">Суши</option>
+                                <option value="sets">Сеты</option>
+                                <option value="hot">Горячее</option>
+                                <option value="drinks">Напитки</option>
+                            </select>
+                        </label>
+                        <label>Цена<input name="price" type="number" min="1" placeholder="590" required></label>
+                        <label>Вес<input name="weight" type="text" placeholder="260 г" required></label>
+                        <label>Теги<input name="tags" type="text" placeholder="лосось, темпура"></label>
+                        <label>Фото блюда
+                            <input name="imageFile" type="file" accept="image/*">
+                        </label>
+                        <label>Или ссылка на фото
+                            <input name="image" type="url" placeholder="https://...">
+                        </label>
+                        <label>Описание<textarea name="description" placeholder="Состав и особенности блюда" required></textarea></label>
+                        <button class="btn btn-primary btn-wide" type="submit">Добавить в меню</button>
+                    </form>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <div class="toast js-toast" role="status" aria-live="polite"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="JAva/supabase-config.js"></script>
+    <script src="JAva/app.js"></script>
+</body>
+</html>

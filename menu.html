@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Меню - SAKURA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="menu">
+    <header class="site-header">
+        <div class="container header-inner">
+            <a class="logo" href="index.html"><span>S</span>AKURA</a>
+            <button class="nav-toggle" type="button" aria-label="Открыть меню">☰</button>
+            <nav class="site-nav">
+                <a href="index.html" data-nav="home">Главная</a>
+                <a href="menu.html" data-nav="menu">Меню</a>
+                <a href="about.html" data-nav="about">О нас</a>
+                <a href="cart.html" data-nav="cart">Корзина <span class="cart-pill js-cart-count">0</span></a>
+                <a href="auth.html" data-nav="auth">Войти</a>
+                <a href="account.html" data-nav="account">Кабинет</a>
+            </nav>
+            <button class="theme-toggle js-theme-toggle" type="button" aria-label="Сменить тему">Светлая</button>
+        </div>
+    </header>
+
+    <main class="page-main">
+        <section class="page-hero menu-hero">
+            <div class="container">
+                <p class="eyebrow">Меню доставки</p>
+                <h1>Роллы, суши, сеты и горячее</h1>
+                <p>Фильтруйте блюда по категориям, добавляйте позиции в корзину и оформляйте заказ как на настоящем сервисе доставки.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container toolbar">
+                <div class="tabs js-menu-tabs" role="tablist" aria-label="Категории меню">
+                    <button class="tab active" type="button" data-category="all">Все</button>
+                    <button class="tab" type="button" data-category="rolls">Роллы</button>
+                    <button class="tab" type="button" data-category="sushi">Суши</button>
+                    <button class="tab" type="button" data-category="sets">Сеты</button>
+                    <button class="tab" type="button" data-category="hot">Горячее</button>
+                    <button class="tab" type="button" data-category="drinks">Напитки</button>
+                </div>
+                <label class="search-box">
+                    <span>Поиск</span>
+                    <input class="js-menu-search" type="search" placeholder="Например, Филадельфия">
+                </label>
+            </div>
+            <div class="container product-grid js-menu-products"></div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div><a class="logo" href="index.html"><span>S</span>AKURA</a><p>Свежая японская кухня с доставкой по городу.</p></div>
+            <div><h3>Навигация</h3><a href="index.html">Главная</a><a href="about.html">О нас</a><a href="cart.html">Корзина</a></div>
+            <div><h3>Контакты</h3><p>+7 (861) 000-00-00</p><p>10:00-23:00</p></div>
+            <div><h3>Заказ</h3><p>Добавьте блюда в корзину и перейдите к оформлению.</p><a class="btn btn-small" href="cart.html">К корзине</a></div>
+        </div>
+    </footer>
+
+    <div class="toast js-toast" role="status" aria-live="polite"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="JAva/supabase-config.js"></script>
+    <script src="JAva/app.js"></script>
+</body>
+</html>

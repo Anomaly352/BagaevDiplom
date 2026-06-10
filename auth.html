@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход и регистрация - SAKURA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="auth">
+    <header class="site-header">
+        <div class="container header-inner">
+            <a class="logo" href="index.html"><span>S</span>AKURA</a>
+            <button class="nav-toggle" type="button" aria-label="Открыть меню">☰</button>
+            <nav class="site-nav">
+                <a href="index.html" data-nav="home">Главная</a>
+                <a href="menu.html" data-nav="menu">Меню</a>
+                <a href="about.html" data-nav="about">О нас</a>
+                <a href="cart.html" data-nav="cart">Корзина <span class="cart-pill js-cart-count">0</span></a>
+                <a href="auth.html" data-nav="auth">Войти</a>
+                <a href="account.html" data-nav="account">Кабинет</a>
+            </nav>
+            <button class="theme-toggle js-theme-toggle" type="button" aria-label="Сменить тему">Светлая</button>
+        </div>
+    </header>
+
+    <main class="page-main auth-page">
+        <section class="section">
+            <div class="container auth-layout">
+                <div class="auth-text">
+                    <p class="eyebrow">Личный кабинет</p>
+                    <h1>Вход и регистрация клиента</h1>
+                    <p>Создайте аккаунт, чтобы быстрее оформлять заказы, хранить адрес доставки, получать бонусы и видеть историю покупок.</p>
+                    <div class="mini-benefits">
+                        <span>История заказов</span>
+                        <span>Адрес доставки</span>
+                        <span>Бонусный уровень</span>
+                    </div>
+                </div>
+
+                <div class="auth-card">
+                    <div class="auth-switch">
+                        <button class="active" type="button" data-auth-tab="login">Вход</button>
+                        <button type="button" data-auth-tab="register">Регистрация</button>
+                    </div>
+
+                    <form class="auth-form js-login-form" data-auth-form="login">
+                        <label>Email
+                            <input name="email" type="email" placeholder="client@mail.ru" required>
+                        </label>
+                        <label>Пароль
+                            <input name="password" type="password" placeholder="Введите пароль" required>
+                        </label>
+                        <button class="btn btn-primary btn-wide" type="submit">Войти</button>
+                    </form>
+
+                    <form class="auth-form hidden js-register-form" data-auth-form="register">
+                        <label>Имя
+                            <input name="name" type="text" placeholder="Анна" required>
+                        </label>
+                        <label>Email
+                            <input name="email" type="email" placeholder="client@mail.ru" required>
+                        </label>
+                        <label>Телефон
+                            <input name="phone" type="tel" placeholder="+7 (___) ___-__-__" required>
+                        </label>
+                        <label>Пароль
+                            <input name="password" type="password" minlength="4" placeholder="Минимум 4 символа" required>
+                        </label>
+                        <button class="btn btn-primary btn-wide" type="submit">Создать аккаунт</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="toast js-toast" role="status" aria-live="polite"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="JAva/supabase-config.js"></script>
+    <script src="JAva/app.js"></script>
+</body>
+</html>
