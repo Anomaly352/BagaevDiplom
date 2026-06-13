@@ -129,7 +129,7 @@ function initAddressSuggestions() {
         input.addEventListener("input", () => {
             clearTimeout(timer);
             const query = input.value.trim();
-            if (query.length < 2 || !hasHouseNumber(query)) {
+            if (query.length < 2) {
                 box.classList.add("hidden");
                 return;
             }
@@ -161,21 +161,23 @@ async function loadAddressSuggestions(query, box, input) {
             },
             body: JSON.stringify({
                 query: `Геленджик ${query}`,
-                count: 10,
+                count: hasHouseNumber(query) ? 10 : 6,
                 from_bound: { value: "street" },
-                to_bound: { value: "house" },
+                to_bound: { value: hasHouseNumber(query) ? "house" : "street" },
                 locations: [{ city: "Геленджик" }],
                 restrict_value: true
             })
         });
         const data = await response.json();
         const seen = new Set();
+        const isHouseSearch = hasHouseNumber(query);
         const suggestions = (data.suggestions || [])
-            .filter((suggestion) => suggestion.data?.house)
-            .map(formatGelendzhikAddress)
+            .filter((suggestion) => isHouseSearch ? suggestion.data?.house : suggestion.data?.street_with_type)
+            .map((suggestion) => isHouseSearch ? formatGelendzhikAddress(suggestion) : formatGelendzhikStreet(suggestion))
             .filter((address) => {
-                if (!address || seen.has(address)) return false;
-                seen.add(address);
+                const key = normalizeAddressKey(address);
+                if (!address || seen.has(key)) return false;
+                seen.add(key);
                 return true;
             });
 
@@ -206,6 +208,14 @@ function formatGelendzhikAddress(suggestion) {
     const house = data.house ? `${data.house_type || "д."} ${data.house}` : "";
     const block = data.block ? `${data.block_type || "к."} ${data.block}` : "";
     return [street, house, block].filter(Boolean).join(", ");
+}
+
+function formatGelendzhikStreet(suggestion) {
+    return suggestion.data?.street_with_type || "";
+}
+
+function normalizeAddressKey(value) {
+    return String(value || "").toLowerCase().replace(/\s+/g, " ").trim();
 }
 
 function hasHouseNumber(value) {
