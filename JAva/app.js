@@ -737,13 +737,11 @@ async function initAccountPage() {
     const profile = await currentProfile();
     const isLoggedIn = Boolean(profile?.authUser);
     const orders = await loadUserOrders(profile?.id);
-    const spent = orders.reduce((sum, order) => sum + Number(order.total || 0), 0);
     const role = !isLoggedIn ? "Гость" : profile.is_admin ? "Админ" : "Клиент";
 
     setText(".js-profile-name", isLoggedIn ? profile.full_name || "Клиент" : "Гость");
     setText(".js-profile-email", isLoggedIn ? profile.email : "Войдите или зарегистрируйтесь");
     setText(".js-avatar", isLoggedIn ? (profile.full_name || profile.email || "S").slice(0, 1).toUpperCase() : "S");
-    setText(".js-spent", formatPrice(spent));
     setText(".js-orders-count", orders.length);
     setText(".js-status", role);
 

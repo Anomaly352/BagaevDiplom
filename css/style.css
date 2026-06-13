@@ -377,6 +377,10 @@ body.theme-light .auth-text p {
     gap: 16px;
 }
 
+.account-layout .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+}
+
 .feature-list article,
 .service-grid article,
 .delivery-cards div,
