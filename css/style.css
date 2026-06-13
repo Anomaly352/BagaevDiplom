@@ -1010,13 +1010,19 @@ body.theme-light .admin-row {
 
 .admin-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.85fr);
     gap: 22px;
     align-items: start;
 }
 
-.admin-form-panel {
+.admin-grid [data-admin-section="orders"],
+.admin-clients-panel {
     grid-column: 1 / -1;
+}
+
+.admin-form-panel {
+    position: sticky;
+    top: calc(var(--header-h) + 18px);
 }
 
 .admin-list {
@@ -1186,6 +1192,10 @@ body.theme-light .site-footer {
     }
 
     .profile-card {
+        position: static;
+    }
+
+    .admin-form-panel {
         position: static;
     }
 }
