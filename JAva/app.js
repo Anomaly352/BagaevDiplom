@@ -119,7 +119,7 @@ function formatRussianPhone(value) {
 function initAddressSuggestions() {
     document.querySelectorAll('input[name="address"]').forEach((input) => {
         input.autocomplete = "off";
-        input.placeholder = "ул. Мира, 23";
+        input.placeholder = "Введите адрес доставки";
 
         const box = document.createElement("div");
         box.className = "address-suggest hidden";
@@ -129,7 +129,7 @@ function initAddressSuggestions() {
         input.addEventListener("input", () => {
             clearTimeout(timer);
             const query = input.value.trim();
-            if (query.length < 2) {
+            if (query.length < 2 || !hasHouseNumber(query)) {
                 box.classList.add("hidden");
                 return;
             }
@@ -160,8 +160,8 @@ async function loadAddressSuggestions(query, box, input) {
                 "Authorization": `Token ${dadataConfig.token}`
             },
             body: JSON.stringify({
-                query,
-                count: 5,
+                query: `Геленджик ${query}`,
+                count: 10,
                 from_bound: { value: "street" },
                 to_bound: { value: "house" },
                 locations: [{ city: "Геленджик" }],
@@ -169,9 +169,15 @@ async function loadAddressSuggestions(query, box, input) {
             })
         });
         const data = await response.json();
+        const seen = new Set();
         const suggestions = (data.suggestions || [])
+            .filter((suggestion) => suggestion.data?.house)
             .map(formatGelendzhikAddress)
-            .filter(Boolean);
+            .filter((address) => {
+                if (!address || seen.has(address)) return false;
+                seen.add(address);
+                return true;
+            });
 
         if (!suggestions.length) {
             box.classList.add("hidden");
@@ -200,6 +206,10 @@ function formatGelendzhikAddress(suggestion) {
     const house = data.house ? `${data.house_type || "д."} ${data.house}` : "";
     const block = data.block ? `${data.block_type || "к."} ${data.block}` : "";
     return [street, house, block].filter(Boolean).join(", ");
+}
+
+function hasHouseNumber(value) {
+    return /\d/.test(value);
 }
 
 async function loadProducts() {
