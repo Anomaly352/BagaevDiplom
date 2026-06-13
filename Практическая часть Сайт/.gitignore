@@ -1,7 +1,0 @@
-.vs/
-.env
-.env.local
-uploads/
-node_modules/
-.vercel/
-*.log

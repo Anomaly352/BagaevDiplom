@@ -1,0 +1,12 @@
+.vs/
+Практическая часть Сайт/
+Текстовая часть диплом/
+render_check_bagaev/
+scripts/
+uploads/
+node_modules/
+.vercel/
+.env
+.env.local
+*.log
+database/*.docx
