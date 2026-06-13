@@ -36,16 +36,17 @@
         <section class="section js-admin-login">
             <div class="container admin-login-layout">
                 <div>
-                    <p class="eyebrow">Как открыть</p>
-                    <p class="admin-note">Для демонстрации используйте логин <strong>admin@sakura.ru</strong> и пароль <strong>admin123</strong>.</p>
+                    <p class="eyebrow">Вход</p>
+                    <h2>Авторизация администратора</h2>
+                    <p class="admin-note">Введите учетные данные администратора, чтобы открыть панель управления.</p>
                 </div>
 
                 <form class="auth-card auth-form js-admin-login-form">
                     <label>Email администратора
-                        <input name="email" type="email" value="admin@sakura.ru" required>
+                        <input name="email" type="email" placeholder="admin@sakura.ru" required>
                     </label>
                     <label>Пароль
-                        <input name="password" type="password" value="admin123" required>
+                        <input name="password" type="password" placeholder="Введите пароль" required>
                     </label>
                     <button class="btn btn-primary btn-wide" type="submit">Войти в панель</button>
                 </form>
@@ -68,14 +69,20 @@
                 <div><span>Клиенты</span><strong class="js-admin-clients">0</strong></div>
             </div>
 
+            <div class="container admin-tabs tabs">
+                <button class="tab active" type="button" data-admin-view="orders">Заказы</button>
+                <button class="tab" type="button" data-admin-view="menu">Меню</button>
+                <button class="tab" type="button" data-admin-view="clients">Клиенты</button>
+            </div>
+
             <div class="container admin-grid">
-                <section class="dashboard-section">
+                <section class="dashboard-section" data-admin-section="orders">
                     <h2>Заказы</h2>
                     <p class="admin-note">Менеджер видит состав заказа, контакты клиента и меняет статус: новый, готовится, передан курьеру, выполнен или отменен.</p>
                     <div class="admin-list js-admin-orders-list"></div>
                 </section>
 
-                <section class="dashboard-section">
+                <section class="dashboard-section" data-admin-section="menu">
                     <div class="cart-panel-head">
                         <h2>Меню</h2>
                         <button class="ghost-button js-reset-products" type="button">Сбросить меню</button>
@@ -84,7 +91,7 @@
                     <div class="admin-list js-admin-products-list"></div>
                 </section>
 
-                <section class="dashboard-section admin-form-panel">
+                <section class="dashboard-section admin-form-panel" data-admin-section="menu">
                     <h2>Добавить блюдо</h2>
                     <form class="profile-form js-product-form">
                         <label>Название<input name="name" type="text" placeholder="Темпура ролл" required></label>
@@ -109,6 +116,12 @@
                         <label>Описание<textarea name="description" placeholder="Состав и особенности блюда" required></textarea></label>
                         <button class="btn btn-primary btn-wide" type="submit">Добавить в меню</button>
                     </form>
+                </section>
+
+                <section class="dashboard-section admin-clients-panel hidden" data-admin-section="clients">
+                    <h2>Клиенты</h2>
+                    <p class="admin-note">Список зарегистрированных пользователей, их роли, контакты и адрес доставки.</p>
+                    <div class="admin-list js-admin-clients-list"></div>
                 </section>
             </div>
         </section>

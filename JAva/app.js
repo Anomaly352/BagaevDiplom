@@ -651,6 +651,11 @@ async function registerUser(event) {
     const email = form.email.value.trim();
     const password = form.password.value;
 
+    if (!form.agreement.checked) {
+        showToast("Примите политику конфиденциальности и пользовательское соглашение.");
+        return;
+    }
+
     const { data, error } = await db.auth.signUp({
         email,
         password,
@@ -667,8 +672,7 @@ async function registerUser(event) {
             id: data.user.id,
             full_name: fullName,
             phone,
-            email,
-            bonus_points: 150
+            email
         });
     }
 
@@ -733,13 +737,15 @@ async function initAccountPage() {
     const profile = await currentProfile();
     const isLoggedIn = Boolean(profile?.authUser);
     const orders = await loadUserOrders(profile?.id);
+    const spent = orders.reduce((sum, order) => sum + Number(order.total || 0), 0);
+    const role = !isLoggedIn ? "Гость" : profile.is_admin ? "Админ" : "Клиент";
 
     setText(".js-profile-name", isLoggedIn ? profile.full_name || "Клиент" : "Гость");
     setText(".js-profile-email", isLoggedIn ? profile.email : "Войдите или зарегистрируйтесь");
     setText(".js-avatar", isLoggedIn ? (profile.full_name || profile.email || "S").slice(0, 1).toUpperCase() : "S");
-    setText(".js-bonus", isLoggedIn ? profile.bonus_points || 0 : 0);
+    setText(".js-spent", formatPrice(spent));
     setText(".js-orders-count", orders.length);
-    setText(".js-status", isLoggedIn ? "Клиент" : "Гость");
+    setText(".js-status", role);
 
     const authLink = document.querySelector(".js-auth-link");
     const logout = document.querySelector(".js-logout");
@@ -865,6 +871,7 @@ async function initAdminPage() {
     if (!isAdmin) return;
 
     document.querySelector(".js-product-form")?.addEventListener("submit", saveAdminProduct);
+    initAdminFilters();
     document.querySelector(".js-reset-products")?.addEventListener("click", () => {
         showToast("В Supabase меню сбрасывается через SQL seed-скрипт.");
     });
@@ -872,6 +879,29 @@ async function initAdminPage() {
     await renderAdminStats();
     await renderAdminOrders();
     renderAdminProducts();
+    await renderAdminClients();
+}
+
+function initAdminFilters() {
+    const tabs = document.querySelector(".admin-tabs");
+    if (!tabs) return;
+
+    tabs.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-admin-view]");
+        if (!button) return;
+
+        const view = button.dataset.adminView;
+        tabs.querySelectorAll("[data-admin-view]").forEach((tab) => {
+            tab.classList.toggle("active", tab === button);
+        });
+        document.querySelectorAll("[data-admin-section]").forEach((section) => {
+            section.classList.toggle("hidden", section.dataset.adminSection !== view);
+        });
+    });
+
+    document.querySelectorAll("[data-admin-section]").forEach((section) => {
+        section.classList.toggle("hidden", section.dataset.adminSection !== "orders");
+    });
 }
 
 async function renderAdminStats() {
@@ -972,6 +1002,41 @@ function renderAdminProducts() {
             showToast("Позиция удалена из меню.");
         });
     });
+}
+
+async function renderAdminClients() {
+    const list = document.querySelector(".js-admin-clients-list");
+    if (!list) return;
+
+    if (!db) {
+        list.innerHTML = `<div class="empty-state"><h3>Клиенты недоступны</h3><p>Подключите Supabase, чтобы видеть пользователей.</p></div>`;
+        return;
+    }
+
+    const { data, error } = await db
+        .from("profiles")
+        .select("id,email,full_name,phone,address,is_admin,created_at")
+        .order("created_at", { ascending: false });
+
+    if (error) {
+        list.innerHTML = `<div class="empty-state"><h3>Не удалось загрузить клиентов</h3><p>${escapeHtml(error.message)}</p></div>`;
+        return;
+    }
+
+    if (!data.length) {
+        list.innerHTML = `<div class="empty-state"><h3>Клиентов пока нет</h3><p>После регистрации пользователи появятся здесь.</p></div>`;
+        return;
+    }
+
+    list.innerHTML = data.map((client) => `
+        <article class="admin-row">
+            <div>
+                <strong>${escapeHtml(client.full_name || client.email || "Клиент")}</strong>
+                <span>${escapeHtml(client.is_admin ? "Админ" : "Клиент")} · ${escapeHtml(client.email || "email не указан")}</span>
+                <p>${escapeHtml([client.phone, client.address].filter(Boolean).join(" · ") || "Контактные данные не заполнены")}</p>
+            </div>
+        </article>
+    `).join("");
 }
 
 async function saveAdminProduct(event) {

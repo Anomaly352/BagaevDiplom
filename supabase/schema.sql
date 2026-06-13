@@ -6,11 +6,13 @@ create table if not exists public.profiles (
     full_name text,
     phone text,
     address text,
-    bonus_points integer not null default 0,
     is_admin boolean not null default false,
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now()
 );
+
+alter table public.profiles
+drop column if exists bonus_points;
 
 create table if not exists public.categories (
     id uuid primary key default gen_random_uuid(),

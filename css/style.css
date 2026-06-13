@@ -560,6 +560,11 @@ body.theme-light .dashboard-section {
     color: white;
 }
 
+.admin-tabs {
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
 .search-box {
     min-width: 280px;
     display: grid;
@@ -757,6 +762,32 @@ body.theme-light .admin-row {
     font-weight: 800;
 }
 
+.check-line {
+    display: grid !important;
+    grid-template-columns: 18px 1fr;
+    align-items: start;
+    gap: 10px !important;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.check-line input {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    accent-color: var(--accent);
+}
+
+.check-line a {
+    color: var(--accent-2);
+    text-decoration: none;
+}
+
+.check-line a:hover {
+    text-decoration: underline;
+}
+
 .address-suggest {
     position: absolute;
     z-index: 20;
@@ -874,6 +905,33 @@ body.theme-light .admin-row {
 .account-layout {
     grid-template-columns: 320px 1fr;
     align-items: start;
+}
+
+.doc-page {
+    min-height: 100vh;
+}
+
+.doc-content {
+    max-width: 880px;
+}
+
+.doc-content h1 {
+    margin-bottom: 22px;
+    font-size: clamp(36px, 5vw, 62px);
+}
+
+.doc-content h2 {
+    margin-top: 28px;
+    margin-bottom: 10px;
+    font-size: 24px;
+}
+
+.doc-content p {
+    color: var(--muted);
+}
+
+.doc-content .btn {
+    margin-top: 28px;
 }
 
 .profile-card {
