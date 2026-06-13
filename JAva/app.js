@@ -45,6 +45,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     initTheme();
     initNavigation();
     initSubscribe();
+    initPhoneMasks();
     await loadProducts();
     updateCartCounters();
 
@@ -101,6 +102,46 @@ function initSubscribe() {
             showToast("Спасибо! Промокоды будут приходить на вашу почту.");
         });
     });
+}
+
+function initPhoneMasks() {
+    document.querySelectorAll('input[type="tel"], input[name="phone"]').forEach((input) => {
+        input.placeholder = "+7 (999) 999 99-99";
+        input.inputMode = "tel";
+        input.maxLength = 18;
+
+        input.addEventListener("input", () => {
+            input.value = formatRussianPhone(input.value);
+        });
+
+        input.addEventListener("focus", () => {
+            if (!input.value.trim()) input.value = "+7 ";
+        });
+
+        input.addEventListener("blur", () => {
+            if (input.value.replace(/\D/g, "").length <= 1) input.value = "";
+        });
+
+        if (input.value) input.value = formatRussianPhone(input.value);
+    });
+}
+
+function formatRussianPhone(value) {
+    let digits = value.replace(/\D/g, "");
+
+    if (digits.startsWith("8")) digits = "7" + digits.slice(1);
+    if (!digits.startsWith("7")) digits = "7" + digits;
+
+    const body = digits.slice(1, 11);
+    let result = "+7";
+
+    if (body.length > 0) result += " (" + body.slice(0, 3);
+    if (body.length >= 3) result += ")";
+    if (body.length > 3) result += " " + body.slice(3, 6);
+    if (body.length > 6) result += " " + body.slice(6, 8);
+    if (body.length > 8) result += "-" + body.slice(8, 10);
+
+    return result;
 }
 
 async function loadProducts() {
