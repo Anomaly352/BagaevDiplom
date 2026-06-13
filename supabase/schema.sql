@@ -44,6 +44,16 @@ create table if not exists public.product_tags (
     primary key (product_id, tag_id)
 );
 
+create table if not exists public.cart_items (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid not null references public.profiles(id) on delete cascade,
+    product_id uuid not null references public.products(id) on delete cascade,
+    quantity integer not null default 1 check (quantity > 0),
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now(),
+    unique (user_id, product_id)
+);
+
 create table if not exists public.orders (
     id uuid primary key default gen_random_uuid(),
     user_id uuid references public.profiles(id) on delete set null,
@@ -98,6 +108,11 @@ create trigger products_set_updated_at
 before update on public.products
 for each row execute function public.set_updated_at();
 
+drop trigger if exists cart_items_set_updated_at on public.cart_items;
+create trigger cart_items_set_updated_at
+before update on public.cart_items
+for each row execute function public.set_updated_at();
+
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -145,6 +160,7 @@ alter table public.categories enable row level security;
 alter table public.products enable row level security;
 alter table public.tags enable row level security;
 alter table public.product_tags enable row level security;
+alter table public.cart_items enable row level security;
 alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
 alter table public.reviews enable row level security;
@@ -208,6 +224,27 @@ create policy "Admins manage product tags"
 on public.product_tags for all
 using (public.is_admin())
 with check (public.is_admin());
+
+drop policy if exists "Users read own cart" on public.cart_items;
+create policy "Users read own cart"
+on public.cart_items for select
+using (user_id = auth.uid());
+
+drop policy if exists "Users insert own cart" on public.cart_items;
+create policy "Users insert own cart"
+on public.cart_items for insert
+with check (user_id = auth.uid());
+
+drop policy if exists "Users update own cart" on public.cart_items;
+create policy "Users update own cart"
+on public.cart_items for update
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
+
+drop policy if exists "Users delete own cart" on public.cart_items;
+create policy "Users delete own cart"
+on public.cart_items for delete
+using (user_id = auth.uid());
 
 drop policy if exists "Anyone can create order" on public.orders;
 create policy "Anyone can create order"

@@ -1,33 +1,5 @@
-const DEFAULT_PRODUCTS = [
-    { id: "local-1", name: "Филадельфия премиум", category: "rolls", price: 690, weight: "285 г", tags: ["лосось", "сливочный сыр"], description: "Лосось, сливочный сыр, огурец, авокадо и рис нишики.", image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=900&q=80" },
-    { id: "local-2", name: "Калифорния с крабом", category: "rolls", price: 570, weight: "245 г", tags: ["краб", "тобико"], description: "Краб, авокадо, огурец, японский майонез и икра тобико.", image: "https://images.unsplash.com/photo-1559496417-e7f25cb247f3?auto=format&fit=crop&w=900&q=80" },
-    { id: "local-3", name: "Дракон унаги", category: "rolls", price: 840, weight: "300 г", tags: ["угорь", "унаги"], description: "Угорь, сливочный сыр, авокадо, кунжут и соус унаги.", image: "https://images.unsplash.com/photo-1617196034183-421b4917c92d?auto=format&fit=crop&w=900&q=80" },
-    { id: "local-4", name: "Суши с тунцом", category: "sushi", price: 230, weight: "42 г", tags: ["тунец"], description: "Классические нигири со свежим тунцом и рисом.", image: "https://images.unsplash.com/photo-1583623025817-d180a2221d0a?auto=format&fit=crop&w=900&q=80" },
-    { id: "local-5", name: "Суши с лососем", category: "sushi", price: 210, weight: "42 г", tags: ["лосось"], description: "Нежный лосось, рис, васаби и соевый соус.", image: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?auto=format&fit=crop&w=900&q=80" },
-    { id: "local-6", name: "Сет Сакура", category: "sets", price: 2490, weight: "1180 г", tags: ["32 шт", "компания"], description: "Филадельфия, Калифорния, Дракон и запеченный ролл с лососем.", image: "https://images.unsplash.com/photo-1611143669185-af224c5e3252?auto=format&fit=crop&w=900&q=80" },
-    { id: "local-7", name: "Сет Токио", category: "sets", price: 3190, weight: "1540 г", tags: ["48 шт", "вечеринка"], description: "Большой набор роллов, суши и фирменных соусов для компании.", image: "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=900&q=80" },
-    { id: "local-8", name: "Рамен с курицей", category: "hot", price: 520, weight: "420 г", tags: ["бульон", "лапша"], description: "Насыщенный бульон, лапша, курица, яйцо, нори и зеленый лук.", image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=900&q=80" },
-    { id: "local-9", name: "Лапша якисоба", category: "hot", price: 490, weight: "350 г", tags: ["овощи", "соус"], description: "Пшеничная лапша с овощами, кунжутом и фирменным соусом.", image: "https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?auto=format&fit=crop&w=900&q=80" },
-    { id: "local-10", name: "Матча айс", category: "drinks", price: 260, weight: "350 мл", tags: ["матча"], description: "Холодный напиток на матче с молоком и легкой сладостью.", image: "https://images.unsplash.com/photo-1515823064-d6e0c04616a7?auto=format&fit=crop&w=900&q=80" },
-    { id: "local-11", name: "Лимонад юдзу", category: "drinks", price: 240, weight: "400 мл", tags: ["цитрус"], description: "Освежающий лимонад с юдзу, лаймом и мятой.", image: "https://images.unsplash.com/photo-1621263764928-df1444c5e859?auto=format&fit=crop&w=900&q=80" },
-    { id: "local-12", name: "Запеченный лосось", category: "rolls", price: 660, weight: "270 г", tags: ["теплый ролл"], description: "Ролл с лососем, сыром, огурцом и запеченной сырной шапкой.", image: "https://images.unsplash.com/photo-1615361200141-f45040f367be?auto=format&fit=crop&w=900&q=80" }
-];
-
-const storage = {
-    get(key, fallback) {
-        try {
-            const value = localStorage.getItem(key);
-            return value ? JSON.parse(value) : fallback;
-        } catch {
-            return fallback;
-        }
-    },
-    set(key, value) {
-        localStorage.setItem(key, JSON.stringify(value));
-    }
-};
-
 const config = window.SAKURA_SUPABASE || {};
+const dadataConfig = window.SAKURA_DADATA || {};
 const supabaseReady = Boolean(
     window.supabase &&
     config.url &&
@@ -37,8 +9,8 @@ const supabaseReady = Boolean(
 );
 const db = supabaseReady ? window.supabase.createClient(config.url, config.anonKey) : null;
 
-let productsCache = DEFAULT_PRODUCTS;
-let cart = storage.get("sakuraCart", []);
+let productsCache = [];
+let cart = [];
 let selectedPayment = "Онлайн";
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -46,7 +18,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     initNavigation();
     initSubscribe();
     initPhoneMasks();
+    initAddressSuggestions();
     await loadProducts();
+    await loadCart();
     updateCartCounters();
 
     const page = document.body.dataset.page;
@@ -60,14 +34,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 function initTheme() {
-    const savedTheme = localStorage.getItem("sakuraTheme") || "dark";
-    applyTheme(savedTheme);
+    applyTheme("dark");
 
     document.querySelectorAll(".js-theme-toggle").forEach((button) => {
         button.addEventListener("click", () => {
             const nextTheme = document.body.classList.contains("theme-light") ? "dark" : "light";
             applyTheme(nextTheme);
-            localStorage.setItem("sakuraTheme", nextTheme);
         });
     });
 }
@@ -144,9 +116,95 @@ function formatRussianPhone(value) {
     return result;
 }
 
+function initAddressSuggestions() {
+    document.querySelectorAll('input[name="address"]').forEach((input) => {
+        input.autocomplete = "off";
+        input.placeholder = "ул. Мира, 23";
+
+        const box = document.createElement("div");
+        box.className = "address-suggest hidden";
+        input.insertAdjacentElement("afterend", box);
+
+        let timer = null;
+        input.addEventListener("input", () => {
+            clearTimeout(timer);
+            const query = input.value.trim();
+            if (query.length < 2) {
+                box.classList.add("hidden");
+                return;
+            }
+            timer = setTimeout(() => loadAddressSuggestions(query, box, input), 350);
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!event.target.closest(".address-suggest") && event.target !== input) {
+                box.classList.add("hidden");
+            }
+        });
+    });
+}
+
+async function loadAddressSuggestions(query, box, input) {
+    if (!dadataConfig.token || dadataConfig.token.includes("PASTE_")) {
+        box.innerHTML = `<button type="button" disabled>Вставьте API-ключ DaData в JAva/supabase-config.js</button>`;
+        box.classList.remove("hidden");
+        return;
+    }
+
+    try {
+        const response = await fetch("https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Token ${dadataConfig.token}`
+            },
+            body: JSON.stringify({
+                query,
+                count: 5,
+                from_bound: { value: "street" },
+                to_bound: { value: "house" },
+                locations: [{ city: "Геленджик" }],
+                restrict_value: true
+            })
+        });
+        const data = await response.json();
+        const suggestions = (data.suggestions || [])
+            .map(formatGelendzhikAddress)
+            .filter(Boolean);
+
+        if (!suggestions.length) {
+            box.classList.add("hidden");
+            return;
+        }
+
+        box.innerHTML = suggestions.map((address) => (
+            `<button type="button" data-address="${escapeHtml(address)}">${escapeHtml(address)}</button>`
+        )).join("");
+        box.classList.remove("hidden");
+        box.querySelectorAll("[data-address]").forEach((button) => {
+            button.addEventListener("click", () => {
+                input.value = button.dataset.address;
+                box.classList.add("hidden");
+            });
+        });
+    } catch (error) {
+        console.warn(error);
+        box.classList.add("hidden");
+    }
+}
+
+function formatGelendzhikAddress(suggestion) {
+    const data = suggestion.data || {};
+    const street = data.street_with_type || "";
+    const house = data.house ? `${data.house_type || "д."} ${data.house}` : "";
+    const block = data.block ? `${data.block_type || "к."} ${data.block}` : "";
+    return [street, house, block].filter(Boolean).join(", ");
+}
+
 async function loadProducts() {
     if (!db) {
-        productsCache = storage.get("sakuraProducts", DEFAULT_PRODUCTS);
+        productsCache = [];
         return productsCache;
     }
 
@@ -158,13 +216,12 @@ async function loadProducts() {
 
     if (error) {
         console.warn(error);
-        showToast("Supabase пока не подключен. Показываю локальные данные.");
-        productsCache = storage.get("sakuraProducts", DEFAULT_PRODUCTS);
+        showToast("Не удалось загрузить меню из Supabase.");
+        productsCache = [];
         return productsCache;
     }
 
     productsCache = data.map(productFromDb);
-    storage.set("sakuraProducts", productsCache);
     return productsCache;
 }
 
@@ -266,25 +323,72 @@ function initMenuPage() {
     render();
 }
 
-function addToCart(productId) {
+async function addToCart(productId) {
     const product = getProducts().find((item) => String(item.id) === String(productId));
     if (!product) return;
 
-    const existing = cart.find((item) => String(item.id) === String(productId));
-    if (existing) {
-        existing.qty += 1;
-    } else {
-        cart.push({ id: product.id, qty: 1 });
+    if (!db) {
+        showToast("Подключите Supabase, чтобы корзина сохранялась в базе данных.");
+        return;
     }
 
+    const profile = await currentProfile();
+    if (!profile?.authUser) {
+        showToast("Войдите в аккаунт, чтобы добавить блюдо в корзину.");
+        return;
+    }
+
+    const existing = cart.find((item) => String(item.id) === String(productId));
+    const nextQty = existing ? existing.qty + 1 : 1;
+    const { error } = await db.from("cart_items").upsert({
+        user_id: profile.id,
+        product_id: product.id,
+        quantity: nextQty
+    }, { onConflict: "user_id,product_id" });
+
+    if (error) {
+        showToast(error.message);
+        return;
+    }
+
+    await loadCart();
     saveCart();
     showToast(`${product.name} добавлен в корзину.`);
 }
 
 function saveCart() {
-    storage.set("sakuraCart", cart);
     updateCartCounters();
     if (document.body.dataset.page === "cart") renderCartPage();
+}
+
+async function loadCart() {
+    if (!db) {
+        cart = [];
+        return cart;
+    }
+
+    const profile = await currentProfile();
+    if (!profile?.authUser) {
+        cart = [];
+        return cart;
+    }
+
+    const { data, error } = await db
+        .from("cart_items")
+        .select("product_id,quantity")
+        .eq("user_id", profile.id);
+
+    if (error) {
+        console.warn(error);
+        cart = [];
+        return cart;
+    }
+
+    cart = (data || []).map((item) => ({
+        id: item.product_id,
+        qty: item.quantity
+    }));
+    return cart;
 }
 
 function cartDetails() {
@@ -314,7 +418,11 @@ function updateCartCounters() {
 }
 
 function initCartPage() {
-    document.querySelector(".js-clear-cart")?.addEventListener("click", () => {
+    document.querySelector(".js-clear-cart")?.addEventListener("click", async () => {
+        const profile = await currentProfile();
+        if (db && profile?.authUser) {
+            await db.from("cart_items").delete().eq("user_id", profile.id);
+        }
         cart = [];
         saveCart();
         showToast("Корзина очищена.");
@@ -387,12 +495,42 @@ function renderCartPage() {
     setText(".js-total", formatPrice(subtotal + delivery));
 }
 
-function changeQty(productId, delta) {
+async function changeQty(productId, delta) {
     const item = cart.find((entry) => String(entry.id) === String(productId));
     if (!item) return;
 
     item.qty += delta;
-    if (item.qty <= 0) cart = cart.filter((entry) => String(entry.id) !== String(productId));
+    const profile = await currentProfile();
+    if (!db || !profile?.authUser) {
+        cart = [];
+        saveCart();
+        showToast("Войдите в аккаунт, чтобы управлять корзиной.");
+        return;
+    }
+
+    if (item.qty <= 0) {
+        const { error } = await db
+            .from("cart_items")
+            .delete()
+            .eq("user_id", profile.id)
+            .eq("product_id", productId);
+        if (error) {
+            showToast(error.message);
+            return;
+        }
+    } else {
+        const { error } = await db
+            .from("cart_items")
+            .update({ quantity: item.qty })
+            .eq("user_id", profile.id)
+            .eq("product_id", productId);
+        if (error) {
+            showToast(error.message);
+            return;
+        }
+    }
+
+    await loadCart();
     saveCart();
 }
 
@@ -408,30 +546,21 @@ async function submitOrder(event) {
     const subtotal = cartSubtotal();
     const delivery = deliveryPrice(subtotal);
     const total = subtotal + delivery;
-    const { data: sessionData } = db ? await db.auth.getUser() : { data: { user: null } };
-    const user = sessionData?.user || null;
-
     if (!db) {
-        const orders = storage.get("sakuraOrders", []);
-        orders.unshift({
-            id: Date.now(),
-            date: new Date().toLocaleString("ru-RU"),
-            items: details.map((item) => ({ name: item.name, qty: item.qty, sum: item.sum })),
-            subtotal,
-            delivery,
-            total,
-            payment: selectedPayment,
-            customer: form.name.value.trim()
-        });
-        storage.set("sakuraOrders", orders);
-        finishLocalOrder(form);
+        showToast("Подключите Supabase, чтобы оформить заказ.");
+        return;
+    }
+
+    const profile = await currentProfile();
+    if (!profile?.authUser) {
+        showToast("Войдите в аккаунт, чтобы оформить заказ.");
         return;
     }
 
     const { data: order, error } = await db
         .from("orders")
         .insert({
-            user_id: user?.id || null,
+            user_id: profile.id,
             status: "new",
             payment_method: selectedPayment,
             customer_name: form.name.value.trim(),
@@ -465,10 +594,14 @@ async function submitOrder(event) {
         return;
     }
 
-    finishLocalOrder(form);
+    await finishLocalOrder(form);
 }
 
-function finishLocalOrder(form) {
+async function finishLocalOrder(form) {
+    const profile = await currentProfile();
+    if (db && profile?.authUser) {
+        await db.from("cart_items").delete().eq("user_id", profile.id);
+    }
     cart = [];
     saveCart();
     form.reset();
@@ -625,7 +758,7 @@ async function initAccountPage() {
 }
 
 async function loadUserOrders(userId) {
-    if (!db || !userId) return storage.get("sakuraOrders", []);
+    if (!db || !userId) return [];
 
     const { data, error } = await db
         .from("orders")
@@ -737,7 +870,7 @@ async function renderAdminStats() {
 }
 
 async function loadAdminOrders() {
-    if (!db) return storage.get("sakuraOrders", []);
+    if (!db) return [];
     const { data, error } = await db
         .from("orders")
         .select("*,order_items(*)")
@@ -804,16 +937,16 @@ function renderAdminProducts() {
         button.addEventListener("click", async () => {
             const id = button.dataset.deleteProduct;
             if (!db || String(id).startsWith("local-")) {
-                productsCache = productsCache.filter((product) => String(product.id) !== String(id));
-                storage.set("sakuraProducts", productsCache);
-            } else {
-                const { error } = await db.from("products").update({ is_active: false }).eq("id", id);
-                if (error) {
-                    showToast(error.message);
-                    return;
-                }
-                await loadProducts();
+                showToast("Подключите Supabase, чтобы управлять меню.");
+                return;
             }
+
+            const { error } = await db.from("products").update({ is_active: false }).eq("id", id);
+            if (error) {
+                showToast(error.message);
+                return;
+            }
+            await loadProducts();
             renderAdminProducts();
             await renderAdminStats();
             showToast("Позиция удалена из меню.");
