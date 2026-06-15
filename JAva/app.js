@@ -7,30 +7,108 @@ const supabaseReady = Boolean(
     !config.url.includes("PASTE_") &&
     !config.anonKey.includes("PASTE_")
 );
-const db = supabaseReady ? window.supabase.createClient(config.url, config.anonKey) : null;
+const SUPABASE_TIMEOUT_MS = Number(config.timeoutMs || 12000);
+
+async function fetchWithTimeout(input, init = {}) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), SUPABASE_TIMEOUT_MS);
+
+    if (init.signal) {
+        if (init.signal.aborted) {
+            controller.abort();
+        } else {
+            init.signal.addEventListener("abort", () => controller.abort(), { once: true });
+        }
+    }
+
+    try {
+        return await fetch(input, {
+            ...init,
+            signal: controller.signal
+        });
+    } catch (error) {
+        if (error.name === "AbortError") {
+            throw new Error("Supabase отвечает слишком долго. Попробуйте обновить страницу.");
+        }
+        throw error;
+    } finally {
+        clearTimeout(timeout);
+    }
+}
+
+const db = supabaseReady ? window.supabase.createClient(config.url, config.anonKey, {
+    auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+    },
+    global: {
+        fetch: fetchWithTimeout
+    }
+}) : null;
 
 let productsCache = [];
 let cart = [];
 let selectedPayment = "Онлайн";
+let profileCache = null;
+let profileCacheAt = 0;
+const PROFILE_CACHE_MS = 20000;
 
-document.addEventListener("DOMContentLoaded", async () => {
+const STOCK_IMAGE_PATHS = {
+    "photo-1579871494447-9811cf80d66c": "assets/photos/product-philadelphia.jpg",
+    "photo-1559496417-e7f25cb247f3": "assets/photos/product-california.jpg",
+    "photo-1617196034183-421b4917c92d": "assets/photos/product-dragon.jpg",
+    "photo-1583623025817-d180a2221d0a": "assets/photos/product-tuna-sushi.jpg",
+    "photo-1579584425555-c3ce17fd4351": "assets/photos/product-salmon-sushi.jpg",
+    "photo-1611143669185-af224c5e3252": "assets/photos/product-sakura-set.jpg",
+    "photo-1553621042-f6e147245754": "assets/photos/product-tokyo-set.jpg",
+    "photo-1569718212165-3a8278d5f624": "assets/photos/product-ramen.jpg",
+    "photo-1612929633738-8fe44f7ec841": "assets/photos/product-yakisoba.jpg",
+    "photo-1515823064-d6e0c04616a7": "assets/photos/product-matcha.jpg",
+    "photo-1621263764928-df1444c5e859": "assets/photos/product-yuzu.jpg",
+    "photo-1615361200141-f45040f367be": "assets/photos/product-baked-salmon.jpg"
+};
+
+document.addEventListener("DOMContentLoaded", () => {
     initTheme();
     initNavigation();
     initSubscribe();
     initPhoneMasks();
     initAddressSuggestions();
-    await loadProducts();
-    await loadCart();
+
+    const productsPromise = loadProducts().catch((error) => {
+        console.warn(error);
+        productsCache = [];
+        return productsCache;
+    });
+    const cartPromise = loadCart().catch((error) => {
+        console.warn(error);
+        cart = [];
+        return cart;
+    });
     updateCartCounters();
 
     const page = document.body.dataset.page;
-    if (page === "home") renderFeaturedProducts();
-    if (page === "about") updatePublicStats();
-    if (page === "menu") initMenuPage();
     if (page === "cart") initCartPage();
     if (page === "auth") initAuthPage();
     if (page === "account") initAccountPage();
     if (page === "admin") initAdminPage();
+
+    productsPromise.then(() => {
+        if (page === "home") renderFeaturedProducts();
+        if (page === "about") updatePublicStats();
+        if (page === "menu") initMenuPage();
+        if (page === "admin") {
+            renderAdminProducts();
+            renderAdminStats();
+        }
+        if (page === "cart") renderCartPage();
+    });
+
+    cartPromise.then(() => {
+        updateCartCounters();
+        if (page === "cart") renderCartPage();
+    });
 });
 
 function initTheme() {
@@ -145,20 +223,20 @@ function initAddressSuggestions() {
 }
 
 async function loadAddressSuggestions(query, box, input) {
-    if (!dadataConfig.token || dadataConfig.token.includes("PASTE_")) {
-        box.innerHTML = `<button type="button" disabled>Вставьте API-ключ DaData в JAva/supabase-config.js</button>`;
-        box.classList.remove("hidden");
-        return;
-    }
-
     try {
-        const response = await fetch("https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address", {
+        const endpoint = dadataConfig.endpoint || "/api/dadata";
+        const headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        };
+
+        if (dadataConfig.token) {
+            headers.Authorization = `Token ${dadataConfig.token}`;
+        }
+
+        const response = await fetch(endpoint, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Authorization": `Token ${dadataConfig.token}`
-            },
+            headers,
             body: JSON.stringify({
                 query: `Геленджик ${query}`,
                 count: hasHouseNumber(query) ? 10 : 6,
@@ -168,6 +246,9 @@ async function loadAddressSuggestions(query, box, input) {
                 restrict_value: true
             })
         });
+
+        if (!response.ok) throw new Error("DaData request failed");
+
         const data = await response.json();
         const seen = new Set();
         const isHouseSearch = hasHouseNumber(query);
@@ -247,16 +328,26 @@ async function loadProducts() {
 
 function productFromDb(row) {
     const tagRows = Array.isArray(row.product_tags) ? row.product_tags : [];
+    const category = row.categories?.slug || "rolls";
     return {
         id: row.id,
         name: row.name,
-        category: row.categories?.slug || "rolls",
+        category,
         price: Number(row.price),
         weight: row.weight || "",
         tags: tagRows.map((item) => item.tags?.name).filter(Boolean),
         description: row.description || "",
-        image: row.image_url || "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=900&q=80"
+        image: normalizeProductImage(row.image_url)
     };
+}
+
+function normalizeProductImage(imageUrl) {
+    if (!imageUrl) return "";
+
+    const matchedStockId = Object.keys(STOCK_IMAGE_PATHS).find((id) => imageUrl.includes(id));
+    if (matchedStockId) return STOCK_IMAGE_PATHS[matchedStockId];
+
+    return imageUrl;
 }
 
 function getProducts() {
@@ -269,9 +360,12 @@ function formatPrice(value) {
 
 function productCard(product) {
     const tags = product.tags.map((tag) => `<span class="badge">${escapeHtml(tag)}</span>`).join("");
+    const image = product.image
+        ? `<img src="${product.image}" alt="${escapeHtml(product.name)}" loading="lazy" onerror="this.remove()">`
+        : "";
     return `
         <article class="product-card">
-            <img src="${product.image}" alt="${escapeHtml(product.name)}" loading="lazy">
+            ${image}
             <div class="product-info">
                 <div class="product-meta">
                     <span class="badge">${escapeHtml(product.weight)}</span>
@@ -656,28 +750,45 @@ async function registerUser(event) {
         return;
     }
 
-    const { data, error } = await db.auth.signUp({
-        email,
-        password,
-        options: { data: { full_name: fullName, phone } }
-    });
+    setFormLoading(form, true, "Создаем аккаунт...");
 
-    if (error) {
-        showToast(error.message);
-        return;
-    }
-
-    if (data.user) {
-        await db.from("profiles").upsert({
-            id: data.user.id,
-            full_name: fullName,
-            phone,
-            email
+    try {
+        const { data, error } = await db.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: fullName, phone } }
         });
-    }
 
-    showToast("Аккаунт создан. Если включено подтверждение email, проверьте почту.");
-    setTimeout(() => window.location.href = "account.html", 900);
+        if (error) throw error;
+
+        let { data: sessionData } = await db.auth.getSession();
+        if (!sessionData?.session) {
+            const login = await db.auth.signInWithPassword({ email, password });
+            if (login.error) {
+                showToast("Аккаунт создан. Если включено подтверждение email, проверьте почту и затем войдите.");
+                return;
+            }
+            sessionData = login.data;
+        }
+
+        const user = sessionData?.session?.user || data.user;
+        if (user) {
+            await db.from("profiles").upsert({
+                id: user.id,
+                full_name: fullName,
+                phone,
+                email
+            });
+        }
+
+        profileCache = null;
+        showToast("Аккаунт создан. Открываем личный кабинет.");
+        setTimeout(() => window.location.href = "account.html", 500);
+    } catch (error) {
+        showToast(error.message || "Не удалось создать аккаунт.");
+    } finally {
+        setFormLoading(form, false);
+    }
 }
 
 async function loginUser(event) {
@@ -689,18 +800,24 @@ async function loginUser(event) {
         return;
     }
 
-    const { error } = await db.auth.signInWithPassword({
-        email: form.email.value.trim(),
-        password: form.password.value
-    });
+    setFormLoading(form, true, "Входим...");
 
-    if (error) {
-        showToast(error.message);
-        return;
+    try {
+        const { error } = await db.auth.signInWithPassword({
+            email: form.email.value.trim(),
+            password: form.password.value
+        });
+
+        if (error) throw error;
+
+        profileCache = null;
+        showToast("Вход выполнен.");
+        setTimeout(() => window.location.href = "account.html", 500);
+    } catch (error) {
+        showToast(error.message || "Не удалось войти.");
+    } finally {
+        setFormLoading(form, false);
     }
-
-    showToast("Вход выполнен.");
-    setTimeout(() => window.location.href = "account.html", 700);
 }
 
 function switchAuthTab(tab) {
@@ -712,25 +829,70 @@ function switchAuthTab(tab) {
     });
 }
 
-async function currentProfile() {
+async function currentProfile({ force = false } = {}) {
     if (!db) return null;
+    if (!force && profileCache && Date.now() - profileCacheAt < PROFILE_CACHE_MS) return profileCache;
 
-    const { data: authData } = await db.auth.getUser();
-    const user = authData?.user;
-    if (!user) return null;
+    try {
+        const { data: sessionData } = await db.auth.getSession();
+        let user = sessionData?.session?.user;
+        if (!user) {
+            const { data: authData, error: authError } = await db.auth.getUser();
+            if (authError) console.warn(authError);
+            user = authData?.user;
+        }
+        if (!user) return null;
 
-    const { data, error } = await db
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .maybeSingle();
+        const fallbackProfile = profileFromAuthUser(user);
+        const { data, error } = await db
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .maybeSingle();
 
-    if (error) {
+        if (error) {
+            console.warn(error);
+            profileCache = fallbackProfile;
+            profileCacheAt = Date.now();
+            return profileCache;
+        }
+
+        profileCache = data ? { ...fallbackProfile, ...data, email: data.email || user.email, authUser: user } : fallbackProfile;
+        profileCacheAt = Date.now();
+        return profileCache;
+    } catch (error) {
         console.warn(error);
-        return null;
+        return profileCache || null;
     }
+}
 
-    return data ? { ...data, authUser: user } : { id: user.id, email: user.email, authUser: user };
+function profileFromAuthUser(user) {
+    const metadata = user.user_metadata || {};
+    return {
+        id: user.id,
+        email: user.email || "",
+        full_name: metadata.full_name || metadata.name || (user.email ? user.email.split("@")[0] : "Клиент"),
+        phone: metadata.phone || "",
+        address: metadata.address || "",
+        is_admin: false,
+        authUser: user
+    };
+}
+
+function setFormLoading(form, isLoading, loadingText = "Подождите...") {
+    const submit = form.querySelector('[type="submit"]');
+    if (!submit) return;
+
+    if (isLoading) {
+        submit.dataset.defaultText = submit.textContent;
+        submit.textContent = loadingText;
+        submit.disabled = true;
+        form.classList.add("is-loading");
+    } else {
+        submit.textContent = submit.dataset.defaultText || submit.textContent;
+        submit.disabled = false;
+        form.classList.remove("is-loading");
+    }
 }
 
 async function initAccountPage() {
@@ -769,11 +931,13 @@ async function initAccountPage() {
             address: form.address.value.trim()
         }).eq("id", profile.id);
 
+        profileCache = null;
         showToast(error ? error.message : "Профиль сохранен.");
     }, { once: true });
 
     logout?.addEventListener("click", async () => {
         if (db) await db.auth.signOut();
+        profileCache = null;
         showToast("Вы вышли из аккаунта.");
         setTimeout(() => window.location.reload(), 500);
     }, { once: true });
@@ -784,17 +948,22 @@ async function initAccountPage() {
 async function loadUserOrders(userId) {
     if (!db || !userId) return [];
 
-    const { data, error } = await db
-        .from("orders")
-        .select("*,order_items(*)")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false });
+    try {
+        const { data, error } = await db
+            .from("orders")
+            .select("*,order_items(*)")
+            .eq("user_id", userId)
+            .order("created_at", { ascending: false });
 
-    if (error) {
+        if (error) {
+            console.warn(error);
+            return [];
+        }
+        return data || [];
+    } catch (error) {
         console.warn(error);
         return [];
     }
-    return data || [];
 }
 
 function renderOrders(orders) {
@@ -822,13 +991,8 @@ function renderOrders(orders) {
 }
 
 async function initAdminPage() {
-    const profile = await currentProfile();
-    const isAdmin = Boolean(profile?.is_admin);
     const loginView = document.querySelector(".js-admin-login");
     const panelView = document.querySelector(".js-admin-panel");
-
-    loginView?.classList.toggle("hidden", isAdmin);
-    panelView?.classList.toggle("hidden", !isAdmin);
 
     document.querySelector(".js-admin-login-form")?.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -839,32 +1003,45 @@ async function initAdminPage() {
             return;
         }
 
-        const { error } = await db.auth.signInWithPassword({
-            email: form.email.value.trim(),
-            password: form.password.value
-        });
+        setFormLoading(form, true, "Входим...");
 
-        if (error) {
-            showToast(error.message);
-            return;
+        try {
+            const { error } = await db.auth.signInWithPassword({
+                email: form.email.value.trim(),
+                password: form.password.value
+            });
+
+            if (error) throw error;
+
+            const adminProfile = await currentProfile({ force: true });
+            if (!adminProfile?.is_admin) {
+                await db.auth.signOut();
+                profileCache = null;
+                showToast("У пользователя нет прав администратора.");
+                return;
+            }
+
+            showToast("Вход в админ-панель выполнен.");
+            setTimeout(() => window.location.reload(), 600);
+        } catch (error) {
+            showToast(error.message || "Не удалось войти в админ-панель.");
+        } finally {
+            setFormLoading(form, false);
         }
-
-        const adminProfile = await currentProfile();
-        if (!adminProfile?.is_admin) {
-            await db.auth.signOut();
-            showToast("У пользователя нет прав администратора.");
-            return;
-        }
-
-        showToast("Вход в админ-панель выполнен.");
-        setTimeout(() => window.location.reload(), 600);
     });
 
     document.querySelector(".js-admin-logout")?.addEventListener("click", async () => {
         if (db) await db.auth.signOut();
+        profileCache = null;
         showToast("Вы вышли из админ-панели.");
         setTimeout(() => window.location.reload(), 500);
     });
+
+    const profile = await currentProfile();
+    const isAdmin = Boolean(profile?.is_admin);
+
+    loginView?.classList.toggle("hidden", isAdmin);
+    panelView?.classList.toggle("hidden", !isAdmin);
 
     if (!isAdmin) return;
 
@@ -907,8 +1084,13 @@ async function renderAdminStats() {
     const revenue = orders.reduce((sum, order) => sum + Number(order.total || 0), 0);
     let clients = 0;
     if (db) {
-        const { count } = await db.from("profiles").select("id", { count: "exact", head: true });
-        clients = count || 0;
+        try {
+            const { count, error } = await db.from("profiles").select("id", { count: "exact", head: true });
+            if (error) throw error;
+            clients = count || 0;
+        } catch (error) {
+            console.warn(error);
+        }
     }
 
     setText(".js-admin-revenue", formatPrice(revenue));
@@ -919,15 +1101,20 @@ async function renderAdminStats() {
 
 async function loadAdminOrders() {
     if (!db) return [];
-    const { data, error } = await db
-        .from("orders")
-        .select("*,order_items(*)")
-        .order("created_at", { ascending: false });
-    if (error) {
+    try {
+        const { data, error } = await db
+            .from("orders")
+            .select("*,order_items(*)")
+            .order("created_at", { ascending: false });
+        if (error) {
+            console.warn(error);
+            return [];
+        }
+        return data || [];
+    } catch (error) {
         console.warn(error);
         return [];
     }
-    return data || [];
 }
 
 async function renderAdminOrders() {

@@ -8,14 +8,19 @@ const isLocalDevelopment =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
 
-window.SAKURA_SUPABASE = {
-  url: isLocalDevelopment
-    ? DIRECT_SUPABASE_URL
-    : `${window.location.origin}/supabase`,
+const isVercelProduction =
+  window.location.hostname.endsWith(".vercel.app") ||
+  window.location.hostname === "bagaev-diplom.vercel.app";
 
-  anonKey: SUPABASE_PUBLISHABLE_KEY
+window.SAKURA_SUPABASE = {
+  url: isVercelProduction
+    ? `${window.location.origin}/supabase`
+    : DIRECT_SUPABASE_URL,
+
+  anonKey: SUPABASE_PUBLISHABLE_KEY,
+  timeoutMs: 12000
 };
 
 window.SAKURA_DADATA = {
-  token: "ed6c39816360984b962c7515549a04d99c08b738"
+  endpoint: "/api/dadata"
 };

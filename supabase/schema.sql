@@ -307,18 +307,18 @@ insert into public.products (category_id, name, description, price, weight, imag
 select c.id, v.name, v.description, v.price, v.weight, v.image_url
 from (
     values
-    ('rolls', 'Филадельфия премиум', 'Лосось, сливочный сыр, огурец, авокадо и рис нишики.', 690.00, '285 г', 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=900&q=80'),
-    ('rolls', 'Калифорния с крабом', 'Краб, авокадо, огурец, японский майонез и икра тобико.', 570.00, '245 г', 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?auto=format&fit=crop&w=900&q=80'),
-    ('rolls', 'Дракон унаги', 'Угорь, сливочный сыр, авокадо, кунжут и соус унаги.', 840.00, '300 г', 'https://images.unsplash.com/photo-1617196034183-421b4917c92d?auto=format&fit=crop&w=900&q=80'),
-    ('sushi', 'Суши с тунцом', 'Классические нигири со свежим тунцом и рисом.', 230.00, '42 г', 'https://images.unsplash.com/photo-1583623025817-d180a2221d0a?auto=format&fit=crop&w=900&q=80'),
-    ('sushi', 'Суши с лососем', 'Нежный лосось, рис, васаби и соевый соус.', 210.00, '42 г', 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?auto=format&fit=crop&w=900&q=80'),
-    ('sets', 'Сет Сакура', 'Филадельфия, Калифорния, Дракон и запеченный ролл с лососем.', 2490.00, '1180 г', 'https://images.unsplash.com/photo-1611143669185-af224c5e3252?auto=format&fit=crop&w=900&q=80'),
-    ('sets', 'Сет Токио', 'Большой набор роллов, суши и фирменных соусов для компании.', 3190.00, '1540 г', 'https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=900&q=80'),
-    ('hot', 'Рамен с курицей', 'Насыщенный бульон, лапша, курица, яйцо, нори и зеленый лук.', 520.00, '420 г', 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=900&q=80'),
-    ('hot', 'Лапша якисоба', 'Пшеничная лапша с овощами, кунжутом и фирменным соусом.', 490.00, '350 г', 'https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?auto=format&fit=crop&w=900&q=80'),
-    ('drinks', 'Матча айс', 'Холодный напиток на матче с молоком и легкой сладостью.', 260.00, '350 мл', 'https://images.unsplash.com/photo-1515823064-d6e0c04616a7?auto=format&fit=crop&w=900&q=80'),
-    ('drinks', 'Лимонад юдзу', 'Освежающий лимонад с юдзу, лаймом и мятой.', 240.00, '400 мл', 'https://images.unsplash.com/photo-1621263764928-df1444c5e859?auto=format&fit=crop&w=900&q=80'),
-    ('rolls', 'Запеченный лосось', 'Ролл с лососем, сыром, огурцом и запеченной сырной шапкой.', 660.00, '270 г', 'https://images.unsplash.com/photo-1615361200141-f45040f367be?auto=format&fit=crop&w=900&q=80')
+    ('rolls', 'Филадельфия премиум', 'Лосось, сливочный сыр, огурец, авокадо и рис нишики.', 690.00, '285 г', 'assets/photos/product-philadelphia.jpg'),
+    ('rolls', 'Калифорния с крабом', 'Краб, авокадо, огурец, японский майонез и икра тобико.', 570.00, '245 г', 'assets/photos/product-california.jpg'),
+    ('rolls', 'Дракон унаги', 'Угорь, сливочный сыр, авокадо, кунжут и соус унаги.', 840.00, '300 г', 'assets/photos/product-dragon.jpg'),
+    ('sushi', 'Суши с тунцом', 'Классические нигири со свежим тунцом и рисом.', 230.00, '42 г', 'assets/photos/product-tuna-sushi.jpg'),
+    ('sushi', 'Суши с лососем', 'Нежный лосось, рис, васаби и соевый соус.', 210.00, '42 г', 'assets/photos/product-salmon-sushi.jpg'),
+    ('sets', 'Сет Сакура', 'Филадельфия, Калифорния, Дракон и запеченный ролл с лососем.', 2490.00, '1180 г', 'assets/photos/product-sakura-set.jpg'),
+    ('sets', 'Сет Токио', 'Большой набор роллов, суши и фирменных соусов для компании.', 3190.00, '1540 г', 'assets/photos/product-tokyo-set.jpg'),
+    ('hot', 'Рамен с курицей', 'Насыщенный бульон, лапша, курица, яйцо, нори и зеленый лук.', 520.00, '420 г', 'assets/photos/product-ramen.jpg'),
+    ('hot', 'Лапша якисоба', 'Пшеничная лапша с овощами, кунжутом и фирменным соусом.', 490.00, '350 г', 'assets/photos/product-yakisoba.jpg'),
+    ('drinks', 'Матча айс', 'Холодный напиток на матче с молоком и легкой сладостью.', 260.00, '350 мл', 'assets/photos/product-matcha.jpg'),
+    ('drinks', 'Лимонад юдзу', 'Освежающий лимонад с юдзу, лаймом и мятой.', 240.00, '400 мл', 'assets/photos/product-yuzu.jpg'),
+    ('rolls', 'Запеченный лосось', 'Ролл с лососем, сыром, огурцом и запеченной сырной шапкой.', 660.00, '270 г', 'assets/photos/product-baked-salmon.jpg')
 ) as v(slug, name, description, price, weight, image_url)
 join public.categories c on c.slug = v.slug
 where not exists (
