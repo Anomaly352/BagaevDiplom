@@ -53,6 +53,7 @@ let selectedPayment = "Онлайн";
 let profileCache = null;
 let profileCacheAt = 0;
 const PROFILE_CACHE_MS = 20000;
+const THEME_STORAGE_KEY = "sakura-theme";
 
 const STOCK_IMAGE_PATHS = {
     "photo-1579871494447-9811cf80d66c": "assets/photos/product-philadelphia.jpg",
@@ -112,23 +113,41 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function initTheme() {
-    applyTheme("dark");
+    const savedTheme = getStoredTheme();
+    applyTheme(savedTheme || "dark");
 
     document.querySelectorAll(".js-theme-toggle").forEach((button) => {
         button.addEventListener("click", () => {
             const nextTheme = document.body.classList.contains("theme-light") ? "dark" : "light";
-            applyTheme(nextTheme);
+            applyTheme(nextTheme, true);
         });
     });
 }
 
-function applyTheme(theme) {
+function getStoredTheme() {
+    try {
+        const value = localStorage.getItem(THEME_STORAGE_KEY);
+        return value === "light" || value === "dark" ? value : null;
+    } catch (error) {
+        return null;
+    }
+}
+
+function applyTheme(theme, shouldSave = false) {
     const isLight = theme === "light";
     document.body.classList.toggle("theme-light", isLight);
     document.querySelectorAll(".js-theme-toggle").forEach((button) => {
         button.textContent = isLight ? "Темная" : "Светлая";
         button.setAttribute("aria-label", isLight ? "Включить темную тему" : "Включить светлую тему");
     });
+
+    if (shouldSave) {
+        try {
+            localStorage.setItem(THEME_STORAGE_KEY, isLight ? "light" : "dark");
+        } catch (error) {
+            console.warn(error);
+        }
+    }
 }
 
 function initNavigation() {
@@ -907,6 +926,8 @@ async function initAccountPage() {
     setText(".js-orders-count", orders.length);
     setText(".js-status", role);
 
+    document.querySelector(".js-admin-shortcuts")?.classList.toggle("hidden", !profile?.is_admin);
+
     const authLink = document.querySelector(".js-auth-link");
     const logout = document.querySelector(".js-logout");
     if (authLink) authLink.style.display = isLoggedIn ? "none" : "inline-flex";
@@ -980,9 +1001,13 @@ function renderOrders(orders) {
             ? order.order_items.map((item) => `${item.product_name} x${item.quantity}`).join(", ")
             : (order.items || []).map((item) => `${item.name} x${item.qty}`).join(", ");
         const date = order.created_at ? new Date(order.created_at).toLocaleString("ru-RU") : order.date;
+        const status = statusLabel(order.status || "new");
         return `
             <article class="order-item">
-                <strong>Заказ #${String(order.id).slice(0, 8)} · ${formatPrice(order.total)}</strong>
+                <div class="order-item-head">
+                    <strong>Заказ #${String(order.id).slice(0, 8)} · ${formatPrice(order.total)}</strong>
+                    <span class="status-badge">${escapeHtml(status)}</span>
+                </div>
                 <span>${date} · ${order.payment_method || order.payment}</span>
                 <p>${escapeHtml(items)}</p>
             </article>

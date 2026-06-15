@@ -703,6 +703,26 @@ body.theme-light .intro-band {
     font-size: 24px;
 }
 
+.admin-shortcuts {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.admin-shortcuts p:not(.eyebrow) {
+    max-width: 560px;
+    margin: 8px 0 0;
+    color: var(--muted);
+}
+
+.shortcut-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
 .cart-items {
     display: grid;
     gap: 14px;
@@ -975,6 +995,24 @@ body.theme-light .admin-row {
     border: 1px solid var(--line);
     border-radius: var(--radius);
     background: rgba(255, 255, 255, 0.035);
+}
+
+.order-item-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.status-badge {
+    flex: 0 0 auto;
+    border: 1px solid rgba(255, 193, 79, 0.38);
+    border-radius: 999px;
+    padding: 6px 10px;
+    background: rgba(255, 193, 79, 0.12);
+    color: var(--accent-2);
+    font-size: 12px;
+    font-weight: 800;
 }
 
 .admin-hero {
